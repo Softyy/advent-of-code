@@ -5,6 +5,7 @@
 .calva
 .vscode
 *.log
+.lsp
 tmp/
 
 .cpcache
