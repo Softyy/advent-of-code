@@ -1,0 +1,13 @@
+.DS_Store
+.idea
+.nrepl-port
+.cpcache
+.calva
+.vscode
+*.log
+tmp/
+
+.cpcache
+.nrepl-port
+
+.clj-kondo/.cache
