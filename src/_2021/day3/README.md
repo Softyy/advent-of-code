@@ -37,8 +37,6 @@ Use the binary numbers in your diagnostic report to calculate the gamma rate and
 
 ## Part 2 
 
---- Part Two ---
-
 Next, you should verify the life support rating, which can be determined by multiplying the oxygen generator rating by the CO2 scrubber rating.
 
 Both the oxygen generator rating and the CO2 scrubber rating are values that can be found in your diagnostic report - finding them is the tricky part. Both values are located using a similar process that involves filtering out values until only one remains. Before searching for either rating value, start with the full list of binary numbers from your diagnostic report and consider just the first bit of those numbers. Then:
@@ -49,8 +47,8 @@ Both the oxygen generator rating and the CO2 scrubber rating are values that can
 
 The bit criteria depends on which type of rating value you want to find:
 
-- To find oxygen generator rating, determine the most common value (`0` or `1`) in the current bit position, and keep only numbers with that bit in that position. If `0` and 1 are equally common, keep values with a `1` in the position being considered.
-- To find CO2 scrubber rating, determine the least common value (`0` or `1`) in the current bit position, and keep only numbers with that bit in that position. If `0` and `1` are equally common, keep values with a 0 in the position being considered.
+- To find oxygen generator rating, determine the most common value (`0` or `1`) in the current bit position, and keep only numbers with that bit in that position. If `0` and `1` are equally common, keep values with a `1` in the position being considered.
+- To find CO2 scrubber rating, determine the least common value (`0` or `1`) in the current bit position, and keep only numbers with that bit in that position. If `0` and `1` are equally common, keep values with a `0` in the position being considered.
 
 For example, to determine the oxygen generator rating value using the same example diagnostic report from above:
 
