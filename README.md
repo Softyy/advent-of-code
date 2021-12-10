@@ -10,3 +10,4 @@
 - Day 6 [Lanternfish](./src/_2021/day6)
 - Day 7 [The Treachery of Whales](./src/_2021/day7)
 - Day 8 [Seven Segment Search](./src/_2021/day8)
+- Day 9 [Smoke Basin](./src/_2021/day9)
