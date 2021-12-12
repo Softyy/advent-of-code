@@ -13,6 +13,8 @@
 - Day 9 [Smoke Basin](./src/_2021/day9)
 - Day 10 [Syntax Scoring](./src/_2021/day10)
 - Day 11 [Dumbo Octopus](./src/_2021/day11)
+- Day 12 [Passage Pathing](./src/_2021/day12)
+
 
 
 
