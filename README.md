@@ -12,3 +12,7 @@
 - Day 8 [Seven Segment Search](./src/_2021/day8)
 - Day 9 [Smoke Basin](./src/_2021/day9)
 - Day 10 [Syntax Scoring](./src/_2021/day10)
+- Day 11 [Dumbo Octopus](./src/_2021/day11)
+
+
+
