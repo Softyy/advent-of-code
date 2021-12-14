@@ -58,6 +58,7 @@ The first section is a list of dots on the transparent paper. `0,0` represents t
 
 Then, there is a list of fold instructions. Each instruction indicates a line on the transparent paper and wants you to fold the paper up (for horizontal `y=...` lines) or left (for vertical `x=...` lines). In this example, the first fold instruction is fold along `y=7`, which designates the line formed by all of the positions where `y` is `7` (marked here with `-`):
 
+```
 ...#..#..#.
 ....#......
 ...........
@@ -73,9 +74,11 @@ Then, there is a list of fold instructions. Each instruction indicates a line on
 ......#...#
 #..........
 #.#........
+```
 
 Because this is a horizontal line, fold the bottom half up. Some of the dots might end up overlapping after the fold is complete, but dots will never appear exactly on a fold line. The result of doing this fold looks like this:
 
+```
 #.##..#..#.
 #...#......
 ......#...#
@@ -83,6 +86,7 @@ Because this is a horizontal line, fold the bottom half up. Some of the dots mig
 .#.#..#.###
 ...........
 ...........
+```
 
 Now, only `17` dots are visible.
 
@@ -92,6 +96,7 @@ Also notice that some dots can end up overlapping; in this case, the dots merge 
 
 The second fold instruction is `fold along x=5`, which indicates this line:
 
+```
 #.##.|#..#.
 #...#|.....
 .....|#...#
@@ -99,9 +104,11 @@ The second fold instruction is `fold along x=5`, which indicates this line:
 .#.#.|#.###
 .....|.....
 .....|.....
+```
 
 Because this is a vertical line, fold left:
 
+```
 #####
 #...#
 #...#
@@ -109,9 +116,17 @@ Because this is a vertical line, fold left:
 #####
 .....
 .....
+```
 
 The instructions made a square!
 
 The transparent paper is pretty big, so for now, focus on just completing the first fold. After the first fold in the example above, `17` dots are visible - dots that end up overlapping after the fold is completed count as a single dot.
 
 How many dots are visible after completing just the first fold instruction on your transparent paper?
+
+## Part Two
+
+Finish folding the transparent paper according to the instructions. The manual says the code is always eight capital letters.
+
+What code do you use to activate the infrared thermal imaging camera system?
+

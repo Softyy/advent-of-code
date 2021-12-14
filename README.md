@@ -15,6 +15,8 @@
 - Day 11 [Dumbo Octopus](./src/_2021/day11)
 - Day 12 [Passage Pathing](./src/_2021/day12)
 - Day 13 [Transparent Origami](./src/_2021/day13)
+- Day 14 [Extended Polymerization](./src/_2021/day14)
+
 
 
 
