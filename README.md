@@ -16,6 +16,10 @@
 - Day 12 [Passage Pathing](./src/_2021/day12)
 - Day 13 [Transparent Origami](./src/_2021/day13)
 - Day 14 [Extended Polymerization](./src/_2021/day14)
+- Day 15 [Chiton](./src/_2021/day15) (TODO: Part 2)
+- Day 16 [Packet Decoder](./src/_2021/day16) (TODO)
+- Day 17 [Trick Shot](./src/_2021/day17)
+- Day 18 [Snailfish](./src/_2021/day18) (TODO)
 
 
 
