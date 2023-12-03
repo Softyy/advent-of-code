@@ -1,15 +1,9 @@
-use relative_path::RelativePath;
 use std::collections::HashMap;
-use std::{env::current_dir, fs};
+use std::fs;
 
 pub fn main() {
-    // TODO: move to util
-    let current_dir = current_dir();
-    // TODO: why wasn't relative path working?
-    let relative_path = RelativePath::new("src/day1/input.txt");
-    let file_path = relative_path.to_path(current_dir.unwrap());
     let contents: String =
-        fs::read_to_string(file_path).expect("Should have been able to read the file");
+        fs::read_to_string("src/day1/input.txt").expect("Should have been able to read the file");
 
     // Part 1
     fn find_digit_left_to_right(string: &str) -> char {

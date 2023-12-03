@@ -1,5 +1,6 @@
 mod day1;
 mod day2;
+mod day3;
 
 use std::env;
 
@@ -12,5 +13,9 @@ fn main() {
 
     if args.contains(&"day2".to_owned()) {
         day2::main()
+    }
+
+    if args.contains(&"day3".to_owned()) {
+        day3::main()
     }
 }
