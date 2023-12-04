@@ -45,7 +45,6 @@ pub fn main() {
     }
 
     fn get_part_numbers(grid: &Vec<Vec<char>>) -> Vec<Vec<(usize, usize)>> {
-        let numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         let width = grid.len();
         let height = grid[0].len();
         let mut part_nums: Vec<Vec<(usize, usize)>> = Vec::new();
@@ -54,7 +53,7 @@ pub fn main() {
         for y in 0..height {
             for x in 0..width {
                 let digit = grid[y][x];
-                if numbers.contains(&digit) {
+                if digit.is_digit(10) {
                     possible_part_num.push((x, y))
                 } else {
                     if possible_part_num.is_empty().not() {
