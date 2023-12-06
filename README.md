@@ -1,14 +1,6 @@
-# Advent of Code!~~
+# Advent of Code! 
 
-- 2023 ~ Rust
-
-  ![](https://img.shields.io/badge/Stars%20⭐-12/50-yellow)
-
-- ~~2022 ~ MIA~~ 
-
-  ![](https://img.shields.io/badge/Stars%20⭐-0/50-yellow)
-
-- 2021 ~ Clojure 
-  
-  ![](https://img.shields.io/badge/Stars%20⭐-31/50-yellow)
+![./_2023](https://img.shields.io/badge/2023%20Stars%20⭐-12/50-yellow?logo=rust)
+![](https://img.shields.io/badge/2022%20Stars%20⭐-0/50-yellow?logo=serverfault)
+![./_2021](https://img.shields.io/badge/2021%20Stars%20⭐-31/50-yellow?logo=clojure)
 
