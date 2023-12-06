@@ -1,10 +1,10 @@
 use std::{
     cmp::{max, min},
-    fs,
+    fmt, fs,
     str::Lines,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct RangeMap {
     start: u64,
     end: u64,
@@ -36,6 +36,13 @@ impl RangeMap {
         );
     }
 }
+
+impl fmt::Display for RangeMap {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{}..{},{}]", self.start, self.end, self.offset)
+    }
+}
+
 #[derive(Debug)]
 struct RangeMaps {
     maps: Vec<RangeMap>,
@@ -75,14 +82,69 @@ impl RangeMaps {
 
     fn chain(&self, new_range_maps: RangeMaps) -> RangeMaps {
         let mut new_maps: Vec<RangeMap> = Vec::new();
-        for range_map in &self.maps {
-            for new_range_map in &new_range_maps.maps {
-                let transformed_map = range_map.intersects(new_range_map);
-                if transformed_map.is_some() {
-                    new_maps.push(transformed_map.unwrap());
+
+        let mut s1: Vec<RangeMap> = self.maps.iter().copied().collect();
+        let mut s2 = new_range_maps.maps;
+        println!("");
+        println!("{:?}", s1);
+        println!("{:?}", s2);
+
+        loop {
+            match (s1.pop(), s2.pop()) {
+                (Some(c1), Some(c2)) => {
+                    if c1.end < c2.start {
+                        // no intersection
+                        new_maps.push(c1);
+                        s2.push(c2) // put it back
+                    } else if c1.end < c2.end {
+                        //partial inersection
+                        new_maps.push(RangeMap {
+                            start: c1.start,
+                            end: c2.start,
+                            offset: c1.offset,
+                        });
+                        new_maps.push(RangeMap {
+                            start: c2.start,
+                            end: c1.end,
+                            offset: c1.offset + c2.offset,
+                        });
+                        s2.push(RangeMap {
+                            start: c1.end,
+                            end: c2.end,
+                            offset: c2.offset,
+                        })
+                    } else {
+                        // full intersection
+                        new_maps.push(RangeMap {
+                            start: c1.start,
+                            end: c2.start,
+                            offset: c1.offset,
+                        });
+                        new_maps.push(RangeMap {
+                            start: c2.start,
+                            end: c2.end,
+                            offset: c1.offset + c2.offset,
+                        });
+                        s1.push(RangeMap {
+                            start: c2.end,
+                            end: c1.end,
+                            offset: c1.offset,
+                        })
+                    }
+                }
+                (Some(c1), None) => {
+                    new_maps.push(c1);
+                }
+                (None, Some(c2)) => {
+                    new_maps.push(c2);
+                }
+                _ => {
+                    break;
                 }
             }
         }
+        new_maps.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
+
         return RangeMaps { maps: new_maps };
     }
 }
@@ -108,12 +170,16 @@ fn parse_input(lines: &mut Lines<'_>) -> RangeMaps {
         };
         range_maps.maps.push(map);
     }
+    range_maps
+        .maps
+        .sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
+
     return range_maps;
 }
 
 pub fn main() {
     let contents: String =
-        fs::read_to_string("src/day5/input.txt").expect("Should have been able to read the file");
+        fs::read_to_string("src/day5/test.txt").expect("Should have been able to read the file");
 
     let mut lines = contents.lines();
 
@@ -168,4 +234,5 @@ pub fn main() {
     }
 
     println!("{:?}", locations.iter().min());
+    println!("{:?}", seed_to_location.transform(82));
 }

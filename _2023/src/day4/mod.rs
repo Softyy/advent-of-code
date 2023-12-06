@@ -2,7 +2,6 @@ use std::fs;
 
 #[derive(Debug)]
 struct Card {
-    id: i32,
     win_nums: Vec<i32>,
     nums: Vec<i32>,
 }
@@ -39,11 +38,10 @@ pub fn main() {
     let mut cards = Vec::new();
     for line in lines {
         let (card_str, numbers_str) = line.split_once(":").expect("valid input");
-        let card_id = card_str[5..].trim().parse::<i32>().expect("valid card id");
+        let _card_id = card_str[5..].trim().parse::<i32>().expect("valid card id");
         let (win_num_str, numbers) = numbers_str.split_once("|").expect("valid input");
 
         let card = Card {
-            id: card_id,
             win_nums: win_num_str
                 .split_whitespace()
                 .map(|x| x.trim().parse::<i32>().expect("valid i32"))
