@@ -3,13 +3,13 @@ use std::{cmp::Ordering, collections::HashMap, fs};
 
 #[derive(PartialOrd, Ord, PartialEq, Eq)]
 enum HandType {
-    FiveOfAKind,
-    FourOfAKind,
-    FullHouse,
-    ThreeOfAKind,
-    TwoPair,
-    OnePair,
     HighCard,
+    OnePair,
+    TwoPair,
+    ThreeOfAKind,
+    FullHouse,
+    FourOfAKind,
+    FiveOfAKind,
 }
 
 #[derive(Debug, Eq)]
@@ -71,7 +71,7 @@ impl Ord for Player {
                 let a = *card_values.get(&card).expect("casts");
                 let b = *card_values.get(&other_card).expect("casts");
                 if a != b {
-                    return b.cmp(&a);
+                    return a.cmp(&b);
                 }
             }
         }
@@ -98,7 +98,7 @@ fn parse_line(line: &str) -> Player {
     let mut hand: HashMap<char, u32> = HashMap::new();
 
     for char in hand_str.chars() {
-        *hand.entry(char).or_insert(0) += 1;
+        hand.entry(char).and_modify(|x| *x += 1).or_insert(1);
     }
 
     // part 2 : joker override.
@@ -132,12 +132,13 @@ pub fn main() {
 
     let mut players: Vec<Player> = contents.lines().map(parse_line).collect();
 
-    players.sort_by(|a, b| b.cmp(a));
+    players.sort();
 
     let mut score = 0;
 
     for (idx, player) in players.iter().enumerate() {
         score += (idx + 1) as u32 * player.bid;
     }
+
     println!("{:?}", score); // part 1: 248569531, part 2: 250382098
 }
