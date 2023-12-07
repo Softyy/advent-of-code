@@ -180,20 +180,13 @@ pub fn main() {
 
     let location_2: Option<Range> = seeds_2
         .iter()
-        .map(|seed_range| seed_to_soil.transform_range(*seed_range))
-        .flatten()
-        .map(|soil_range: Range| soil_to_fertilizer.transform_range(soil_range))
-        .flatten()
-        .map(|fertilizer_range: Range| fertilizer_to_water.transform_range(fertilizer_range))
-        .flatten()
-        .map(|water_range| water_to_light.transform_range(water_range))
-        .flatten()
-        .map(|light_range| light_to_temperature.transform_range(light_range))
-        .flatten()
-        .map(|temperature_range| temperature_to_humidity.transform_range(temperature_range))
-        .flatten()
-        .map(|humidity_range| humidity_to_location.transform_range(humidity_range))
-        .flatten()
+        .flat_map(|seed_range| seed_to_soil.transform_range(*seed_range))
+        .flat_map(|soil_range: Range| soil_to_fertilizer.transform_range(soil_range))
+        .flat_map(|fertilizer_range: Range| fertilizer_to_water.transform_range(fertilizer_range))
+        .flat_map(|water_range| water_to_light.transform_range(water_range))
+        .flat_map(|light_range| light_to_temperature.transform_range(light_range))
+        .flat_map(|temperature_range| temperature_to_humidity.transform_range(temperature_range))
+        .flat_map(|humidity_range| humidity_to_location.transform_range(humidity_range))
         .min_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
 
     println!("{:?}", location_2); // 37806486
