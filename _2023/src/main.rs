@@ -7,6 +7,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 use std::env;
 
@@ -39,5 +40,9 @@ fn main() {
 
     if args.contains(&"day7".to_owned()) {
         day7::main();
+    }
+
+    if args.contains(&"day8".to_owned()) {
+        day8::main();
     }
 }
