@@ -9,37 +9,18 @@ fn reduce_sequence(seq: Vec<i32>) -> Vec<i32> {
 }
 
 fn next_in_sequence(seq: Vec<i32>) -> i32 {
-    // zero the sequence
-    let mut sequences = Vec::from([seq.clone()]);
-    let mut current_sequence = seq;
+    if seq.iter().all(|x| x == &0) {
+        // reached the base
+        return 0;
+    } else {
+        // part 1
+        // let end_of_seq = *seq.last().expect("Should have a last element");
+        // return end_of_seq + next_in_sequence(reduce_sequence(seq));
 
-    loop {
-        let redeuced_sequence = reduce_sequence(current_sequence);
-
-        if redeuced_sequence.iter().all(|x| x == &0) {
-            // reached the base
-            break;
-        }
-        sequences.push(redeuced_sequence.clone());
-        current_sequence = redeuced_sequence;
+        // part 2
+        let first_of_seq = *seq.first().expect("Should have a first element");
+        return first_of_seq - next_in_sequence(reduce_sequence(seq));
     }
-
-    // build up the next in the sequence
-    let mut next: i32 = 0;
-
-    // part 1
-    // for _seq in sequences.into_iter().rev() {
-    //     println!("{:?}", _seq);
-    //     next = next + _seq.last().expect("_seq should have a last element");
-    // }
-
-    // part 2
-    for _seq in sequences.into_iter().rev() {
-        println!("{:?}", _seq);
-        next = _seq.first().expect("_seq should have a first element") - next;
-    }
-
-    return next;
 }
 
 pub fn main() {
