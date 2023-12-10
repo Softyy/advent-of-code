@@ -1,6 +1,7 @@
 #![feature(iter_array_chunks)]
 
 mod day1;
+mod day10;
 mod day2;
 mod day3;
 mod day4;
@@ -49,5 +50,9 @@ fn main() {
 
     if args.contains(&"day9".to_owned()) {
         day9::main();
+    }
+
+    if args.contains(&"day10".to_owned()) {
+        day10::main();
     }
 }
