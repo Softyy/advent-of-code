@@ -14,50 +14,39 @@ mod day9;
 
 use std::env;
 
+use regex::Regex;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.contains(&"day1".to_owned()) {
-        day1::main()
-    }
+    let days = [
+        day1::main,
+        day2::main,
+        day3::main,
+        day4::main,
+        day5::main,
+        day6::main,
+        day7::main,
+        day8::main,
+        day9::main,
+        day10::main,
+        day11::main,
+    ];
 
-    if args.contains(&"day2".to_owned()) {
-        day2::main()
-    }
+    let day_match = Regex::new("day(?<day_number>[0-9]+)").unwrap();
 
-    if args.contains(&"day3".to_owned()) {
-        day3::main();
-    }
-
-    if args.contains(&"day4".to_owned()) {
-        day4::main();
-    }
-
-    if args.contains(&"day5".to_owned()) {
-        day5::main();
-    }
-
-    if args.contains(&"day6".to_owned()) {
-        day6::main();
-    }
-
-    if args.contains(&"day7".to_owned()) {
-        day7::main();
-    }
-
-    if args.contains(&"day8".to_owned()) {
-        day8::main();
-    }
-
-    if args.contains(&"day9".to_owned()) {
-        day9::main();
-    }
-
-    if args.contains(&"day10".to_owned()) {
-        day10::main();
-    }
-
-    if args.contains(&"day11".to_owned()) {
-        day11::main();
+    for arg in args {
+        match day_match.captures(&arg) {
+            Some(capture) => {
+                let day_number: usize = capture["day_number"]
+                    .parse::<usize>()
+                    .expect("should be a day number");
+                match days.get(day_number - 1) {
+                    Some(func) => func(),
+                    _ => println!("No func for {}", arg),
+                }
+            }
+            _ => {}
+        }
     }
 }
