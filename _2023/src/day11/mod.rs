@@ -56,28 +56,6 @@ impl Universe {
         return indicies;
     }
 
-    fn grow(&mut self) {
-        let verticals_to_grow = self.empty_vertical_lines();
-        for row in self.image.iter_mut() {
-            let mut offset: usize = 0;
-            for new_index in verticals_to_grow.iter() {
-                // double it
-                row.insert(new_index + offset, '.');
-                offset += 1;
-            }
-        }
-
-        let horizontals_to_grow = self.empty_horizontal_lines();
-        let length = self.image[0].len();
-
-        let mut offset: usize = 0;
-        for new_index in horizontals_to_grow.iter() {
-            // double it
-            self.image.insert(new_index + offset, vec!['.'; length]);
-            offset += 1;
-        }
-    }
-
     fn galaxies(&self) -> Vec<Point> {
         let mut spaces: Vec<Point> = Vec::new();
         for (y, row) in self.image.iter().enumerate() {
@@ -90,20 +68,7 @@ impl Universe {
         return spaces;
     }
 
-    fn shortest_path_between_galaxies(&self) -> Vec<usize> {
-        let galaxies = self.galaxies();
-        let mut shortest_paths: Vec<usize> = Vec::new();
-
-        for i in 0..(galaxies.len() - 1) {
-            for j in i + 1..galaxies.len() {
-                let dist = manhattan(&galaxies[i], &galaxies[j]);
-                shortest_paths.push(dist)
-            }
-        }
-        return shortest_paths;
-    }
-
-    fn shortest_path_between_galaxies_smart(&self) -> Vec<usize> {
+    fn shortest_path_between_galaxies(&self, grow_offset: usize) -> Vec<usize> {
         let galaxies = self.galaxies();
         let mut shortest_paths: Vec<usize> = Vec::new();
 
@@ -118,12 +83,12 @@ impl Universe {
                 let mut y_offset: usize = 0;
                 for vertical in verticals_to_grow.iter() {
                     if contains(vertical, &pi.x, &pj.x) {
-                        y_offset += 999999;
+                        y_offset += grow_offset;
                     }
                 }
                 for horizontal in horizontals_to_grow.iter() {
                     if contains(horizontal, &pi.y, &pj.y) {
-                        x_offset += 999999;
+                        x_offset += grow_offset;
                     }
                 }
                 let dist = manhattan(&galaxies[i], &galaxies[j]) + y_offset + x_offset;
@@ -144,15 +109,25 @@ pub fn main() {
     let contents: String =
         fs::read_to_string("src/day11/input.txt").expect("Should have been able to read the file");
 
-    let mut universe = Universe {
+    let universe = Universe {
         image: contents
             .lines()
             .map(|l| l.chars().collect::<Vec<char>>())
             .collect(),
     };
-
-    // universe.grow();
-    let dists: Vec<usize> = universe.shortest_path_between_galaxies_smart();
     universe.display();
-    println!("{}", dists.iter().sum::<usize>()); // part 1: 9742154, part 2: 411142919886
+
+    let dist = universe
+        .shortest_path_between_galaxies(1)
+        .iter()
+        .sum::<usize>();
+
+    println!("{}", dist); // part 1: 9742154
+
+    let dist = universe
+        .shortest_path_between_galaxies(999999)
+        .iter()
+        .sum::<usize>();
+
+    println!("{}", dist); // part 2: 411142919886
 }
