@@ -207,6 +207,6 @@ pub fn main() {
             },
         ) * 100;
     }
-    println!("{}", p1_ans);
-    println!("{}", p2_ans);
+    println!("{}", p1_ans); // 31265
+    println!("{}", p2_ans); // 39359
 }
