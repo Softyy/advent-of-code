@@ -1,18 +1,6 @@
 use std::{collections::HashMap, fs};
 
-fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
-    assert!(!v.is_empty());
-    let len = v[0].len();
-    let mut iters: Vec<_> = v.into_iter().map(|n| n.into_iter()).collect();
-    (0..len)
-        .map(|_| {
-            iters
-                .iter_mut()
-                .map(|n| n.next().unwrap())
-                .collect::<Vec<T>>()
-        })
-        .collect()
-}
+use crate::utils;
 
 fn count_differences(v1: &Vec<char>, v2: &Vec<char>) -> u64 {
     let mut mismatch_count = 0;
@@ -26,7 +14,7 @@ fn count_differences(v1: &Vec<char>, v2: &Vec<char>) -> u64 {
 }
 
 fn calc_vertical_reflection(pattern: &Vec<Vec<char>>) -> i64 {
-    let pattern_t = transpose(pattern.clone());
+    let pattern_t = utils::transpose(pattern.clone());
     return calc_horiztonal_reflection(&pattern_t);
 }
 
@@ -75,7 +63,7 @@ fn calc_horiztonal_reflection(pattern: &Vec<Vec<char>>) -> i64 {
 
 fn calc_vertical_reflection_2(pattern: &Vec<Vec<char>>, avoid_index: usize) -> i64 {
     println!("vert");
-    let pattern_t = transpose(pattern.clone());
+    let pattern_t = utils::transpose(pattern.clone());
     return calc_horiztonal_reflection_2(&pattern_t, avoid_index);
 }
 
