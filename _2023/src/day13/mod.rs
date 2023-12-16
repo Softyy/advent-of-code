@@ -25,7 +25,6 @@ fn calc_horiztonal_reflection(pattern: &Vec<Vec<char>>) -> i64 {
     'outer: for i in 0..pattern.len() - 1 {
         let mut top_index = i;
         let mut bottom_index = i + 1;
-        let mut freebie_mismatch: bool = true;
 
         loop {
             let r1 = &pattern[top_index];
