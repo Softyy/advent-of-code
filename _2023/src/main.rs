@@ -10,6 +10,7 @@ mod day15;
 mod day16;
 mod day19;
 mod day2;
+mod day20;
 mod day3;
 mod day4;
 mod day5;
@@ -17,7 +18,6 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
-
 mod utils;
 
 use regex::Regex;
@@ -44,6 +44,7 @@ fn main() {
         day15::main,
         day16::main,
         day19::main,
+        day20::main,
     ];
 
     let day_match = Regex::new("day(?<day_number>[0-9]+)").unwrap();

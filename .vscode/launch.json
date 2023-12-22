@@ -8,8 +8,8 @@
       "type": "lldb",
       "request": "launch",
       "name": "Debug",
-      "program":  "${fileDirname}/../_2023/target/debug/_2023",
-      "args": ["day16"],
+      "program":  "${workspaceFolder}/_2023/target/debug/_2023",
+      "args": ["day18"],
       "cwd": "${workspaceFolder}/_2023",
       "sourceLanguages": [
         "rust"
