@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     collections::{HashMap, VecDeque},
     fs,
@@ -28,7 +29,7 @@ impl FlipFlop {
         }
     }
 
-    fn receive(&mut self, pulse: Pulse) -> Pulse {
+    fn receive(&mut self, pulse: &Pulse) -> Pulse {
         match pulse {
             Pulse::Low => {
                 self.state = !self.state;
@@ -57,11 +58,11 @@ impl Conjunction {
         }
     }
 
-    fn receive(&mut self, sender: &str, pulse: Pulse) -> Pulse {
+    fn receive(&mut self, sender: &str, pulse: &Pulse) -> Pulse {
         self.inputs
             .entry(sender.to_string())
-            .and_modify(|p| *p = pulse)
-            .or_insert(Pulse::Low);
+            .and_modify(|p: &mut Pulse| *p = pulse.clone())
+            .or_insert(pulse.clone());
 
         if self.inputs.values().all(|p| *p == Pulse::High) {
             Pulse::Low
@@ -79,12 +80,14 @@ enum Node {
 
 pub fn main() {
     let contents: String =
-        fs::read_to_string("src/day20/test.txt").expect("Should have been able to read the file");
+        fs::read_to_string("src/day20/input.txt").expect("Should have been able to read the file");
 
     let regex = Regex::new(r"(?<input>.+) -> (?<outputs>.+)").unwrap();
 
     let mut map: HashMap<String, Node> = HashMap::new();
     let mut root: Vec<String> = Vec::new();
+
+    let mut conj_nodes: Vec<String> = Vec::new();
 
     for line in contents.lines() {
         let capture = regex.captures(line).unwrap();
@@ -100,6 +103,7 @@ pub fn main() {
 
         if input.starts_with('&') {
             let conj = Conjunction::new(outputs);
+            conj_nodes.push(input[1..].to_string());
             map.entry(input[1..].to_string())
                 .or_insert(Node::Conjunction(conj));
         } else if input.starts_with('%') {
@@ -109,14 +113,43 @@ pub fn main() {
         } else {
             root = outputs;
         }
+
+        // set the inputs on all conj nodes
+        for conj_node_name in conj_nodes.iter() {
+            let mut inputs: Vec<String> = Vec::new();
+            for node_name in map.keys() {
+                match map.get(node_name) {
+                    Some(Node::Conjunction(conj)) => {
+                        if conj.outputs.contains(conj_node_name) {
+                            inputs.push(node_name.to_string())
+                        }
+                    }
+                    Some(Node::FlipFlop(ff)) => {
+                        if ff.outputs.contains(conj_node_name) {
+                            inputs.push(node_name.to_string())
+                        }
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            map.entry(conj_node_name.to_string())
+                .and_modify(|n| match n {
+                    Node::Conjunction(conj) => {
+                        for input in inputs {
+                            conj.receive(&input, &Pulse::Low);
+                        }
+                    }
+                    _ => {}
+                });
+        }
     }
 
-    let mut low_pulses = root.len();
-    let mut high_pulses = 0;
+    let mut low_pulses: u64 = 0;
+    let mut high_pulses: u64 = 0;
 
-    println!("{:?}", map);
-    for _ in 0..1 {
+    for button_presses in 0..100000000 {
         // press the broadcast button
+        low_pulses += 1; // start with 1 from button
         let mut pulse_queue: VecDeque<(String, String, Pulse)> = VecDeque::from_iter(
             izip!(
                 vec!["broadcaster".to_string(); root.len()],
@@ -126,67 +159,63 @@ pub fn main() {
             .rev(),
         );
 
-        // println!("{:?}", pulse_queue);
-
         // now we have the queue, we go until it's empty.
+
         while let Some((sender, reciever, pulse)) = pulse_queue.pop_back() {
-            println!("{:?}", pulse_queue);
+            match pulse {
+                Pulse::Low => low_pulses += 1,
+                Pulse::High => high_pulses += 1,
+                _ => {}
+            }
+
+            // part 2, early return
+            if reciever == "rx" && pulse == Pulse::Low {
+                println!("{}", button_presses + 1);
+                break;
+            }
 
             map.entry(reciever.clone()).and_modify(|n| {
-                println!("{:?} {:?} {:?}", sender, reciever, pulse);
-
+                // println!("{:?} {:?} {:?}", sender, reciever, pulse);
                 match n {
-                    Node::Conjunction(conj) => match conj.receive(&sender, pulse) {
+                    Node::Conjunction(conj) => match conj.receive(&sender, &pulse) {
                         Pulse::High => {
                             for output in conj.outputs.iter() {
-                                high_pulses += 1;
-                                if !pulse_queue.iter().any(|(_, node, _)| node == &reciever) {
-                                    pulse_queue.push_front((
-                                        reciever.clone(),
-                                        output.to_string(),
-                                        Pulse::High,
-                                    ));
-                                }
-                            }
-                        }
-                        Pulse::Low => {
-                            for output in conj.outputs.iter() {
-                                low_pulses += 1;
-                                // if !pulse_queue.iter().any(|(_, node, _)| node == &reciever) {
-                                pulse_queue.push_front((
-                                    reciever.clone(),
-                                    output.to_string(),
-                                    Pulse::Low,
-                                ));
-                                // }
-                            }
-                        }
-                        _ => {}
-                    },
-
-                    Node::FlipFlop(ff) => match ff.receive(Pulse::Low) {
-                        Pulse::High => {
-                            for output in ff.outputs.iter() {
-                                high_pulses += 1;
-                                // if !pulse_queue.iter().any(|(_, node, _)| node == &reciever) {
                                 pulse_queue.push_front((
                                     reciever.clone(),
                                     output.to_string(),
                                     Pulse::High,
                                 ));
-                                // }
                             }
                         }
                         Pulse::Low => {
-                            for output in ff.outputs.iter() {
-                                low_pulses += 1;
-                                // if !pulse_queue.iter().any(|(_, node, _)| node == &reciever) {
+                            for output in conj.outputs.iter() {
                                 pulse_queue.push_front((
                                     reciever.clone(),
                                     output.to_string(),
                                     Pulse::Low,
                                 ));
-                                // }
+                            }
+                        }
+                        _ => unreachable!(),
+                    },
+
+                    Node::FlipFlop(ff) => match ff.receive(&pulse) {
+                        Pulse::High => {
+                            for output in ff.outputs.iter() {
+                                pulse_queue.push_front((
+                                    reciever.clone(),
+                                    output.to_string(),
+                                    Pulse::High,
+                                ));
+                            }
+                        }
+                        Pulse::Low => {
+                            for output in ff.outputs.iter() {
+                                pulse_queue.push_front((
+                                    reciever.clone(),
+                                    output.to_string(),
+                                    Pulse::Low,
+                                ));
                             }
                         }
                         _ => {}
@@ -195,6 +224,6 @@ pub fn main() {
             });
         }
     }
-
-    println!("{:?}", high_pulses * low_pulses)
+    println!("{:?} {:?}", high_pulses, low_pulses);
+    // println!("{:?}", high_pulses * low_pulses); // part 1: 839775244
 }
