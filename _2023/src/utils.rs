@@ -1,6 +1,3 @@
-use std::cmp::{Ordering, Reverse};
-use std::collections::{BinaryHeap, HashMap};
-
 pub fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
     assert!(!v.is_empty());
     let len = v[0].len();
