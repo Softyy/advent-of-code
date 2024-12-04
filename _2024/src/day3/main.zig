@@ -12,6 +12,8 @@ fn parseInstruction(instruction: []u8) !u64 {
     const maybe_b = it.next().?;
     const b = std.fmt.parseInt(u32, maybe_b, 10) catch return 0;
 
+    if (it.peek() != null) return 0;
+
     return a * b;
 }
 
@@ -55,5 +57,6 @@ pub fn main() !void {
         }
     }
     // 164591437 is too high ?
+    // this was the issue: mul(715,923,where() = 659945
     print("{d}\n", .{total});
 }
