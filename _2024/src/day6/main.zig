@@ -24,14 +24,24 @@ const Position = struct {
 const Guard = struct {
     pos: Position,
     dir: Direction,
+
+    pub fn nextPos(self: Guard, max_x: usize, max_y: usize) ?Position {
+        if (self.pos.y == 0 and self.dir == Direction.N) return null;
+        if (self.pos.y == max_y and self.dir == Direction.S) return null;
+        if (self.pos.x == 0 and self.dir == Direction.W) return null;
+        if (self.pos.x == max_x and self.dir == Direction.E) return null;
+
+        return switch (self.dir) {
+            Direction.N => Position{ .x = self.pos.x, .y = self.pos.y - 1 },
+            Direction.S => Position{ .x = self.pos.x, .y = self.pos.y + 1 },
+            Direction.E => Position{ .x = self.pos.x + 1, .y = self.pos.y },
+            Direction.W => Position{ .x = self.pos.x - 1, .y = self.pos.y },
+        };
+    }
 };
 
 fn isObstruction(grid: [][]u8, pos: Position) bool {
     return grid[pos.y][pos.x] == '#';
-}
-
-fn inBounds(pos: Position, width: usize, height: usize) bool {
-    return pos.x >= 0 and pos.x < width and pos.y >= 0 and pos.y < height;
 }
 
 pub fn main() !void {
@@ -79,21 +89,13 @@ pub fn main() !void {
     // start walking
     while (true) {
         // move in guard direction
-
-        if (guard.pos.y == 0 and guard.dir == Direction.N) break;
-        if (guard.pos.x == 0 and guard.dir == Direction.W) break;
-
-        const next_pos = switch (guard.dir) {
-            Direction.N => Position{ .x = guard.pos.x, .y = guard.pos.y - 1 },
-            Direction.S => Position{ .x = guard.pos.x, .y = guard.pos.y + 1 },
-            Direction.E => Position{ .x = guard.pos.x + 1, .y = guard.pos.y },
-            Direction.W => Position{ .x = guard.pos.x - 1, .y = guard.pos.y },
-        };
-
-        if (!inBounds(next_pos, width, height)) {
+        const _next_pos = guard.nextPos(width - 1, height - 1);
+        if (_next_pos == null) {
             // we're out
             break;
         }
+        const next_pos = _next_pos.?;
+
         if (isObstruction(grid.items, next_pos)) {
             // we're going to hit something. TURN!
             guard.dir = guard.dir.turn();
@@ -123,29 +125,20 @@ pub fn main() !void {
         defer guard_path.deinit();
 
         while (true) {
-            if (guard.pos.y == 0 and guard.dir == Direction.N) break;
-            if (guard.pos.x == 0 and guard.dir == Direction.W) break;
-
-            // move in guard direction
-            const next_pos = switch (guard.dir) {
-                Direction.N => Position{ .x = guard.pos.x, .y = guard.pos.y - 1 },
-                Direction.S => Position{ .x = guard.pos.x, .y = guard.pos.y + 1 },
-                Direction.E => Position{ .x = guard.pos.x + 1, .y = guard.pos.y },
-                Direction.W => Position{ .x = guard.pos.x - 1, .y = guard.pos.y },
-            };
-
-            const next_guard = Guard{ .pos = next_pos, .dir = guard.dir };
-
-            if (!inBounds(next_pos, width, height)) {
+            const _next_pos = guard.nextPos(width - 1, height - 1);
+            if (_next_pos == null) {
                 // we're out
                 break;
             }
+            const next_pos = _next_pos.?;
 
+            const next_guard = Guard{ .pos = next_pos, .dir = guard.dir };
             if (guard_path.get(next_guard) != null) {
                 // we're in a loop
                 loop_count += 1;
                 break;
             }
+
             if (isObstruction(grid.items, next_pos)) {
                 // we're going to hit something. TURN!
                 guard.dir = guard.dir.turn();
