@@ -48,6 +48,7 @@ pub fn main() !void {
     var grid = std.ArrayList([]u8).init(allocator);
     defer grid.deinit();
 
+    var guard_start: Guard = undefined;
     var guard: Guard = undefined;
     var seen = std.AutoHashMap(Position, bool).init(allocator);
     var seen_count: u32 = 0;
@@ -67,8 +68,9 @@ pub fn main() !void {
         for (0..width) |x| {
             if (grid.items[y][x] == '^') {
                 const pos = Position{ .x = x, .y = y };
-                guard = Guard{ .pos = pos, .dir = Direction.N };
                 try seen.put(pos, true);
+                guard_start = Guard{ .pos = pos, .dir = Direction.N };
+                guard = guard_start;
                 seen_count += 1;
                 break :locSearch;
             }
@@ -77,6 +79,10 @@ pub fn main() !void {
     // start walking
     while (true) {
         // move in guard direction
+
+        if (guard.pos.y == 0 and guard.dir == Direction.N) break;
+        if (guard.pos.x == 0 and guard.dir == Direction.W) break;
+
         const next_pos = switch (guard.dir) {
             Direction.N => Position{ .x = guard.pos.x, .y = guard.pos.y - 1 },
             Direction.S => Position{ .x = guard.pos.x, .y = guard.pos.y + 1 },
@@ -103,4 +109,59 @@ pub fn main() !void {
 
     // part 1 - 4964
     print("{d}\n", .{seen_count});
+
+    var loop_count: u64 = 0;
+    var key_iter = seen.keyIterator();
+    while (key_iter.next()) |possible_obs| {
+        // cannot put an obstacle on the starting position.
+        if (std.meta.eql(possible_obs.*, guard_start.pos)) continue;
+
+        grid.items[possible_obs.y][possible_obs.x] = '#';
+
+        guard = guard_start;
+        var guard_path = std.AutoHashMap(Guard, bool).init(allocator);
+        defer guard_path.deinit();
+
+        while (true) {
+            if (guard.pos.y == 0 and guard.dir == Direction.N) break;
+            if (guard.pos.x == 0 and guard.dir == Direction.W) break;
+
+            // move in guard direction
+            const next_pos = switch (guard.dir) {
+                Direction.N => Position{ .x = guard.pos.x, .y = guard.pos.y - 1 },
+                Direction.S => Position{ .x = guard.pos.x, .y = guard.pos.y + 1 },
+                Direction.E => Position{ .x = guard.pos.x + 1, .y = guard.pos.y },
+                Direction.W => Position{ .x = guard.pos.x - 1, .y = guard.pos.y },
+            };
+
+            const next_guard = Guard{ .pos = next_pos, .dir = guard.dir };
+
+            if (!inBounds(next_pos, width, height)) {
+                // we're out
+                break;
+            }
+
+            if (guard_path.get(next_guard) != null) {
+                // we're in a loop
+                loop_count += 1;
+                break;
+            }
+            if (isObstruction(grid.items, next_pos)) {
+                // we're going to hit something. TURN!
+                guard.dir = guard.dir.turn();
+            } else {
+                guard.pos = next_pos;
+            }
+
+            const _path = try guard_path.getOrPut(next_guard);
+            if (!_path.found_existing) {
+                _path.value_ptr.* = true;
+            }
+        }
+
+        grid.items[possible_obs.y][possible_obs.x] = '.';
+    }
+
+    // part 2 - 1740
+    print("{d}\n", .{loop_count});
 }
