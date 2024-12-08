@@ -13,6 +13,7 @@ const Equation = struct {
     }
 
     fn branchCheck(self: Equation, values_remaining: []u16, running_total: u64) bool {
+        if (self.total < running_total) return false;
         if (values_remaining.len == 0) return self.total == running_total;
         const value = values_remaining[0];
 
