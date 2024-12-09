@@ -1,16 +1,32 @@
 const std = @import("std");
 const print = std.debug.print;
 
-fn checkSum(blocks: []u16) u64 {
-    var sum: u64 = 0;
-    for (0..blocks.len) |idx| {
-        const block = blocks[idx];
-        if (block != 0) {
-            sum += idx * (blocks[idx] - 1);
-        }
+const FreeBlock = struct {
+    start: usize,
+    end: usize,
+
+    pub fn len(self: FreeBlock) usize {
+        return self.end - self.start;
     }
-    return sum;
-}
+};
+
+const FileBlock = struct {
+    id: u16,
+    start: usize,
+    end: usize,
+
+    pub fn len(self: FileBlock) usize {
+        return self.end - self.start;
+    }
+
+    pub fn checkSum(self: FileBlock) u64 {
+        var sum: u64 = 0;
+        for (self.start..self.end) |idx| {
+            sum += idx * self.id;
+        }
+        return sum;
+    }
+};
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -18,46 +34,65 @@ pub fn main() !void {
 
     // setup blocks
     var blocks = std.ArrayList(u16).init(allocator);
+    defer blocks.deinit();
+
+    var free_blocks = std.ArrayList(FreeBlock).init(allocator);
+    defer free_blocks.deinit();
+    var file_blocks = std.ArrayList(FileBlock).init(allocator);
+    defer file_blocks.deinit();
+
     const free_space: u16 = 0; // Note: 0 ~ . in the README
-    var file_id: u16 = 1;
+    _ = free_space; // autofix
+    var file_id: u16 = 0;
     var flip_flop: bool = true;
-    for (file) |char| {
+    var offset: usize = 0;
+    for (file, 0..) |char, idx| {
+        _ = idx; // autofix
         const int_value: u8 = @as(u8, char) - @as(u8, '0');
         if (flip_flop) {
-            for (0..int_value) |_| {
-                try blocks.append(file_id);
-            }
+            const block = FileBlock{
+                .id = file_id,
+                .start = offset,
+                .end = offset + int_value,
+            };
+            try file_blocks.append(block);
             file_id += 1;
         } else {
-            for (0..int_value) |_| {
-                try blocks.append(free_space);
-            }
+            const block = FreeBlock{
+                .start = offset,
+                .end = offset + int_value,
+            };
+            try free_blocks.append(block);
         }
         flip_flop = !flip_flop;
+        offset += int_value;
     }
 
     // defrag
-    var l: usize = 0;
-    var r: usize = blocks.items.len - 1;
-
-    while (l != r) {
-        const left = blocks.items[l];
-        if (left != 0) {
-            // not free
-            l += 1;
-            continue;
+    var i: usize = file_blocks.items.len;
+    while (i > 0) {
+        i -= 1;
+        for (0..free_blocks.items.len) |j| {
+            if (file_blocks.items[i].start < free_blocks.items[j].end) break;
+            if (free_blocks.items[j].len() >= file_blocks.items[i].len()) {
+                file_blocks.items[i].end = free_blocks.items[j].start + file_blocks.items[i].len();
+                file_blocks.items[i].start = free_blocks.items[j].start;
+                if (file_blocks.items[i].len() == free_blocks.items[j].len()) {
+                    _ = free_blocks.orderedRemove(j);
+                } else {
+                    free_blocks.items[j].start = free_blocks.items[j].start + file_blocks.items[i].len();
+                }
+                break;
+            }
         }
-        const right = blocks.items[r];
-        if (right == 0) {
-            // free
-            r -= 1;
-            continue;
-        }
-        // left is free, and right is not... swap
-        blocks.items[l] = blocks.items[r];
-        blocks.items[r] = free_space;
-        l += 1;
     }
 
-    print("{d}\n", .{checkSum(blocks.items)});
+    var result: u64 = 0;
+    for (file_blocks.items) |file_block| {
+        result += file_block.checkSum();
+    }
+
+    // part 1 - 6349606724455
+    // part 2 - 6376648986651
+    print("{d}\n", .{result});
 }
