@@ -30,24 +30,20 @@ const FileBlock = struct {
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
-    const file = @embedFile("input.txt");
+    const input_file = @embedFile("input.txt");
 
     // setup blocks
-    var blocks = std.ArrayList(u16).init(allocator);
-    defer blocks.deinit();
 
     var free_blocks = std.ArrayList(FreeBlock).init(allocator);
     defer free_blocks.deinit();
     var file_blocks = std.ArrayList(FileBlock).init(allocator);
     defer file_blocks.deinit();
 
-    const free_space: u16 = 0; // Note: 0 ~ . in the README
-    _ = free_space; // autofix
     var file_id: u16 = 0;
     var flip_flop: bool = true;
     var offset: usize = 0;
-    for (file, 0..) |char, idx| {
-        _ = idx; // autofix
+
+    for (input_file) |char| {
         const int_value: u8 = @as(u8, char) - @as(u8, '0');
         if (flip_flop) {
             const block = FileBlock{
@@ -73,14 +69,16 @@ pub fn main() !void {
     while (i > 0) {
         i -= 1;
         for (0..free_blocks.items.len) |j| {
-            if (file_blocks.items[i].start < free_blocks.items[j].end) break;
-            if (free_blocks.items[j].len() >= file_blocks.items[i].len()) {
-                file_blocks.items[i].end = free_blocks.items[j].start + file_blocks.items[i].len();
-                file_blocks.items[i].start = free_blocks.items[j].start;
-                if (file_blocks.items[i].len() == free_blocks.items[j].len()) {
+            var file = &file_blocks.items[i];
+            var free = &free_blocks.items[j];
+            if (file.start < free.end) break;
+            if (free.len() >= file.len()) {
+                file.end = free.start + file.len();
+                file.start = free.start;
+                if (file.len() == free.len()) {
                     _ = free_blocks.orderedRemove(j);
                 } else {
-                    free_blocks.items[j].start = free_blocks.items[j].start + file_blocks.items[i].len();
+                    free.start = free.start + file.len();
                 }
                 break;
             }
