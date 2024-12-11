@@ -58,7 +58,7 @@ pub fn main() !void {
             const next_key = try next_buckets.getOrPut(stone * 2024);
             setOrInc(next_key, multiplier);
         }
-
+        buckets.deinit();
         buckets = next_buckets;
     }
 
