@@ -10,5 +10,6 @@
     "editor.matchBrackets": "never",
     "editor.guides.indentation": false,
     "editor.parameterHints.enabled": false
-  }
+  },
+  "zig.zls.enabled": "on"
 }
