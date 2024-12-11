@@ -41,7 +41,7 @@ pub fn main() !void {
                 continue;
             }
 
-            var buffer: [40]u8 = undefined; // Buffer large enough to hold the concatenated string
+            var buffer: [40]u8 = undefined; // Buffer large enough to hold the a u64
             const stone_str = std.fmt.bufPrint(&buffer, "{d}", .{stone}) catch unreachable;
             if (stone_str.len % 2 == 0) {
                 const left_stone = try parseInt(u64, stone_str[0 .. stone_str.len / 2], 10);
