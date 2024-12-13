@@ -7,24 +7,26 @@ const Vec = struct {
     y: i64,
 };
 
+const MatrixError = error{
+    NotInvertible,
+};
+
 const Matrix = struct {
     a11: i64,
     a12: i64,
     a21: i64,
     a22: i64,
 
-    pub fn InverseMul(self: Matrix, vec: Vec) ?Vec {
+    pub fn InverseMul(self: Matrix, vec: Vec) !?Vec {
         const det = self.Determinate();
-        if (det == 0) {
-            print("panic!", .{});
-            return null;
-        }
-        const x = self.a22 * vec.x - self.a21 * vec.y;
 
+        if (det == 0) return MatrixError.NotInvertible;
+
+        const x = self.a22 * vec.x - self.a21 * vec.y;
         const y = self.a11 * vec.y - self.a12 * vec.x;
-        if (@mod(x, det) != 0 or @mod(y, det) != 0) {
-            return null;
-        }
+
+        if (@mod(x, det) != 0 or @mod(y, det) != 0) return null;
+
         return Vec{ .x = @divExact(x, det), .y = @divExact(y, det) };
     }
 
@@ -38,7 +40,7 @@ const Problem = struct {
     prize: Vec,
 
     pub fn Solve(self: Problem) ?Vec {
-        return self.matrix.InverseMul(self.prize);
+        return self.matrix.InverseMul(self.prize) catch unreachable;
     }
 };
 
