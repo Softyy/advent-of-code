@@ -19,6 +19,15 @@ const Robot = struct {
     }
 };
 
+fn printGrid(grid: [][]u8) void {
+    for (grid) |row| {
+        for (row) |cell| {
+            print("{c}", .{cell});
+        }
+        print("\n", .{});
+    }
+}
+
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     const file_name = "input.txt";
@@ -74,6 +83,38 @@ pub fn main() !void {
     }
     const result = top_left * top_right * bot_left * bot_right;
 
-    // part 1 -
+    // part 1 - 218433348
     print("{d}\n", .{result});
+
+    // christmas tree ???
+    var seconds: u32 = 0;
+    while (true) {
+        seconds += 1;
+        var cluster: u32 = 0;
+
+        var grid = try allocator.alloc([]u8, max_y);
+        for (0..grid.len) |y| {
+            const row: []u8 = try allocator.alloc(u8, max_x);
+            for (0..row.len) |x| {
+                row[x] = '.';
+            }
+            grid[y] = row;
+        }
+        defer allocator.free(grid);
+        for (robots.items) |robot| {
+            const pos = robot.move(seconds, max_x, max_y);
+            grid[@as(usize, @abs(pos.y))][@as(usize, @abs(pos.x))] = '#';
+
+            if (pos.x <= mid_x + 5 and pos.x > mid_x - 5 and pos.y <= mid_y + 5 and pos.y > mid_y - 5) {
+                cluster += 1;
+            }
+        }
+
+        if (cluster >= 50) {
+            // part 2 - 6512
+            printGrid(grid);
+            print("{d}\n", .{seconds});
+            break;
+        }
+    }
 }
