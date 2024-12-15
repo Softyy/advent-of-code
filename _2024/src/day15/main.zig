@@ -38,15 +38,37 @@ fn canMove(grid: [][]u8, pos: Vec, dir: Dir) bool {
     if (cell == '.') return true;
     if (cell == '#') return false;
     // must be a box
-    return canMove(grid, next_pos, dir);
+    if (cell == '[') {
+        if (dir == Dir.E) return canMove(grid, Dir.E.move(next_pos), dir);
+        return canMove(grid, next_pos, dir) and canMove(grid, Dir.E.move(next_pos), dir);
+    }
+    if (cell == ']') {
+        if (dir == Dir.W) return canMove(grid, Dir.W.move(next_pos), dir);
+        return canMove(grid, next_pos, dir) and canMove(grid, Dir.W.move(next_pos), dir);
+    }
+    unreachable;
 }
 
 fn moveAndPush(obj: u8, obj_pos: Vec, grid: [][]u8, dir: Dir) void {
     const next_pos = dir.move(obj_pos);
     const next_cell = grid[next_pos.y][next_pos.x];
-    if (next_cell == 'O') {
-        moveAndPush(next_cell, next_pos, grid, dir);
-        // could assert the next spot is empty
+    if (next_cell == '[') {
+        if (dir == Dir.E) {
+            moveAndPush(']', Dir.E.move(next_pos), grid, dir);
+            moveAndPush('[', next_pos, grid, dir);
+        } else {
+            moveAndPush('[', next_pos, grid, dir);
+            moveAndPush(']', Dir.E.move(next_pos), grid, dir);
+        }
+    }
+    if (next_cell == ']') {
+        if (dir == Dir.W) {
+            moveAndPush('[', Dir.W.move(next_pos), grid, dir);
+            moveAndPush(']', next_pos, grid, dir);
+        } else {
+            moveAndPush(']', next_pos, grid, dir);
+            moveAndPush('[', Dir.W.move(next_pos), grid, dir);
+        }
     }
     grid[obj_pos.y][obj_pos.x] = '.';
     grid[next_pos.y][next_pos.x] = obj;
@@ -69,8 +91,8 @@ fn getResult(grid: [][]u8) u64 {
         const row = grid[y];
         for (0..row.len) |x| {
             const cell = row[x];
-            if (cell == 'O') {
-                result += x + y * 100;
+            if (cell == '[') {
+                result += x + (y * 100);
             }
         }
     }
@@ -97,17 +119,32 @@ pub fn main() !void {
 
     var y: usize = 0;
     while (grid_it.next()) |line| {
-        if (std.mem.indexOf(u8, line, "@")) |x| {
-            robot = Robot{ .pos = Vec{ .x = x, .y = y } };
+        // part 2 lines are double the length
+        const line_copy = try allocator.alloc(u8, 2 * line.len);
+        for (0..line.len) |x| {
+            const x1 = x * 2;
+            const x2 = x1 + 1;
+            if (line[x] == '#') {
+                line_copy[x1] = '#';
+                line_copy[x2] = '#';
+            }
+            if (line[x] == 'O') {
+                line_copy[x1] = '[';
+                line_copy[x2] = ']';
+            }
+            if (line[x] == '.') {
+                line_copy[x1] = '.';
+                line_copy[x2] = '.';
+            }
+            if (line[x] == '@') {
+                line_copy[x1] = '@';
+                line_copy[x2] = '.';
+                robot = Robot{ .pos = Vec{ .x = x * 2, .y = y } };
+            }
         }
-        const line_copy = try allocator.alloc(u8, line.len);
-        std.mem.copyForwards(u8, line_copy, line);
         try grid.append(line_copy);
         y += 1;
     }
-
-    printGrid(grid.items);
-
     while (cmd_it.next()) |line| {
         for (line) |cmd| {
             const dir = Dir.fromCmd(cmd);
@@ -117,10 +154,10 @@ pub fn main() !void {
             }
         }
     }
-
-    printGrid(grid.items);
-
     const result = getResult(grid.items);
+
+    // part 1 - 1486930
+    // part 2 - 1492011
 
     print("Result: {d}\n", .{result});
 }
