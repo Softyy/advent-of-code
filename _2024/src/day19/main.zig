@@ -1,20 +1,21 @@
 const std = @import("std");
 const print = std.debug.print;
 
-fn towelMatch(design: []u8, towels: [][]u8, matchable: *std.StringHashMap(bool)) bool {
-    if (design.len == 0) return true;
+fn towelMatch(design: []u8, towels: [][]u8, matchable: *std.StringHashMap(u64)) u64 {
+    if (design.len == 0) return 1;
     if (matchable.get(design)) |match| return match;
-    // print("{s}\n", .{design});
+    var total_count: u64 = 0;
     for (towels) |towel| {
         if (std.mem.startsWith(u8, design, towel)) {
-            if (towelMatch(design[towel.len..], towels, matchable)) {
-                matchable.put(design[towel.len..], true) catch unreachable;
-                return true;
+            const count = towelMatch(design[towel.len..], towels, matchable);
+            if (count > 0) {
+                matchable.put(design[towel.len..], count) catch unreachable;
+                total_count += count;
             }
         }
     }
-    matchable.put(design, false) catch unreachable;
-    return false;
+    matchable.put(design, total_count) catch unreachable;
+    return total_count;
 }
 
 pub fn main() !void {
@@ -26,7 +27,7 @@ pub fn main() !void {
 
     var towels = std.ArrayList([]u8).init(allocator);
     var designs = std.ArrayList([]u8).init(allocator);
-    var matchable = std.StringHashMap(bool).init(allocator);
+    var matchable = std.StringHashMap(u64).init(allocator);
 
     var it = std.mem.splitSequence(u8, input_file, "\n\n");
 
@@ -49,16 +50,17 @@ pub fn main() !void {
         try designs.append(design_copy);
     }
 
-    var result: u32 = 0;
+    var p1: u64 = 0;
+    var p2: u64 = 0;
 
     for (designs.items) |design| {
-        if (towelMatch(design, towels.items, &matchable)) {
-            print("good={s}\n", .{design});
-            result += 1;
-        } else {
-            print("bad", .{});
+        const count: u64 = towelMatch(design, towels.items, &matchable);
+        if (count > 0) {
+            p1 += 1;
+            p2 += count;
         }
     }
     // part 1 - 313
-    print("Result: {d}\n", .{result});
+    print("Result: {d}\n", .{p1});
+    print("Result: {d}\n", .{p2});
 }
