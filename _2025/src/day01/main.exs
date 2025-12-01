@@ -45,4 +45,5 @@ dialNums = Enum.reduce(data, [startingDialNum, 0, 0], turn)
 # 1147
 IO.puts("Part 1: #{zeros}")
 # 6796 - wrong missing something
+# 6789
 IO.puts("Part 2: #{zeros + rotationZeros}")
