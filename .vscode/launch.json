@@ -5,15 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "lldb",
+      "type": "lldb-dap",
       "request": "launch",
       "name": "Debug",
-      "program":  "${workspaceFolder}/_2023/target/debug/_2023",
-      "args": ["day18"],
-      "cwd": "${workspaceFolder}/_2023",
-      "sourceLanguages": [
-        "rust"
-    ]
+      "program": "${workspaceRoot}/<your program>",
+      "args": [],
+      "env": [],
+      "cwd": "${workspaceRoot}"
     }
   ]
 }
