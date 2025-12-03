@@ -30,21 +30,21 @@ defmodule AOC do
     {largestNum, leftovers}
   end
 
-  def over9000(bank, 0, joltage) do
-    joltage + Enum.max(bank)
+  def over9000(bank, 0) do
+    Enum.max(bank)
   end
 
-  def over9000(bank, digit, joltage) do
+  def over9000(bank, digit) do
     {d, leftovers} = largest_joltage_with_leftovers(bank, digit)
-    over9000(leftovers, digit - 1, joltage + d * floor(:math.pow(10, digit)))
+    d * floor(:math.pow(10, digit)) + over9000(leftovers, digit - 1)
   end
 end
 
 data = AOC.read_input(file)
 
-part1 = data |> Enum.map(fn bank -> AOC.over9000(bank, 1, 0) end) |> Enum.sum()
+part1 = data |> Enum.map(fn bank -> AOC.over9000(bank, 1) end) |> Enum.sum()
 
-part2 = data |> Enum.map(fn bank -> AOC.over9000(bank, 11, 0) end) |> Enum.sum()
+part2 = data |> Enum.map(fn bank -> AOC.over9000(bank, 11) end) |> Enum.sum()
 
 # 16842
 IO.puts("Part 1: #{part1}")
