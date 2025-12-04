@@ -20,6 +20,19 @@ defmodule AOC do
     end)
   end
 
+  def grid_map(grid, func) do
+    height = grid |> Enum.count()
+    width = grid |> Enum.at(0) |> Enum.count()
+
+    0..(height - 1)
+    |> Enum.map(fn y ->
+      0..(width - 1)
+      |> Enum.map(fn x ->
+        func.(grid, x, y)
+      end)
+    end)
+  end
+
   @doc """
   Counts the 1's centered around x
   0 1 0
@@ -55,42 +68,32 @@ defmodule AOC do
   where 1's represent cells that are accessable by the forklift
   """
   def removable_grid(grid) do
-    height = grid |> Enum.count()
-    width = grid |> Enum.at(0) |> Enum.count()
+    is_removable = fn grid, x, y ->
+      cell = Enum.at(grid, y) |> Enum.at(x)
 
-    0..(height - 1)
-    |> Enum.map(fn y ->
-      0..(width - 1)
-      |> Enum.map(fn x ->
-        cell = Enum.at(grid, y) |> Enum.at(x)
-
-        if cell == 1 do
-          if AOC.neighbours(grid, x, y) < 4 do
-            1
-          else
-            0
-          end
+      if cell == 1 do
+        if AOC.neighbours(grid, x, y) < 4 do
+          1
         else
           0
         end
-      end)
-    end)
+      else
+        0
+      end
+    end
+
+    grid_map(grid, is_removable)
   end
 
   def subtract(grid1, grid2) do
-    height = grid1 |> Enum.count()
-    width = grid1 |> Enum.at(0) |> Enum.count()
+    subtract = fn _, x, y ->
+      cell1 = Enum.at(grid1, y) |> Enum.at(x)
+      cell2 = Enum.at(grid2, y) |> Enum.at(x)
 
-    0..(height - 1)
-    |> Enum.map(fn y ->
-      0..(width - 1)
-      |> Enum.map(fn x ->
-        cell1 = Enum.at(grid1, y) |> Enum.at(x)
-        cell2 = Enum.at(grid2, y) |> Enum.at(x)
+      cell1 - cell2
+    end
 
-        cell1 - cell2
-      end)
-    end)
+    grid_map(grid1, subtract)
   end
 
   def repeat_until_stable(grid) do
