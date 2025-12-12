@@ -1,6 +1,6 @@
 day = 11
 dayString = day |> Integer.to_string() |> String.pad_leading(2, "0")
-file = "./_2025/src/day#{dayString}/input.txt"
+file = "./_2025/src/day#{dayString}/example.txt"
 
 IO.puts("Day #{day}")
 
@@ -16,7 +16,7 @@ defmodule AOC do
     end)
   end
 
-  def traverse(map, path, out, visited, cache) do
+  def traverse(map, path, out, cache) do
     {count, new_cache} =
       cond do
         Map.has_key?(cache, path) ->
@@ -29,17 +29,10 @@ defmodule AOC do
           {0, cache}
 
         true ->
-          next_paths = Map.get(map, path)
-          next_visited = MapSet.put(visited, path)
-
-          next_paths
+          Map.get(map, path)
           |> Enum.reduce({0, cache}, fn next, {acc, r_cache} ->
-            if MapSet.member?(next_visited, next) do
-              {acc, cache}
-            else
-              {result, new_cache} = traverse(map, next, out, next_visited, r_cache)
-              {result + acc, new_cache}
-            end
+            {result, new_cache} = traverse(map, next, out, r_cache)
+            {result + acc, new_cache}
           end)
       end
 
@@ -49,21 +42,24 @@ end
 
 data = AOC.read_input(file)
 
-# part1 = data |> AOC.traverse("you", "out", MapSet.new(),Map.new()) |> elem(0)
+if Map.has_key?(data, "you") do
+  part1 = data |> AOC.traverse("you", "out", Map.new()) |> elem(0)
+  # 749
+  IO.puts("Part 1: #{part1}")
+end
 
-{first_a_leg, _} = data |> AOC.traverse("svr", "dac", MapSet.new(), Map.new())
-{first_b_leg, _} = data |> AOC.traverse("svr", "fft", MapSet.new(), Map.new())
-{second_a_leg, _} = data |> AOC.traverse("dac", "fft", MapSet.new(), Map.new())
-{second_b_leg, _} = data |> AOC.traverse("fft", "dac", MapSet.new(), Map.new())
-{third_a_leg, _} = data |> AOC.traverse("fft", "out", MapSet.new(), Map.new())
-{third_b_leg, _} = data |> AOC.traverse("dac", "out", MapSet.new(), Map.new())
+if Map.has_key?(data, "svr") do
+  {first_a_leg, _} = data |> AOC.traverse("svr", "dac", Map.new())
+  {first_b_leg, _} = data |> AOC.traverse("svr", "fft", Map.new())
+  {second_a_leg, _} = data |> AOC.traverse("dac", "fft", Map.new())
+  {second_b_leg, _} = data |> AOC.traverse("fft", "dac", Map.new())
+  {third_a_leg, _} = data |> AOC.traverse("fft", "out", Map.new())
+  {third_b_leg, _} = data |> AOC.traverse("dac", "out", Map.new())
 
-part2 =
-  first_a_leg * second_a_leg * third_a_leg +
-    first_b_leg * second_b_leg * third_b_leg
+  part2 =
+    first_a_leg * second_a_leg * third_a_leg +
+      first_b_leg * second_b_leg * third_b_leg
 
-# 749
-# IO.puts("Part 1: #{part1}")
-
-# 420257875695750
-IO.puts("Part 2: #{part2}")
+  # 420257875695750
+  IO.puts("Part 2: #{part2}")
+end
