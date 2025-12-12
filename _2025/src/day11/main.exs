@@ -16,59 +16,54 @@ defmodule AOC do
     end)
   end
 
-  def traverse_part1(map, path, visited) do
-    if path == "out" do
-      1
-    else
-      # Placeholder for traversal logic
-      next_paths = Map.get(map, path)
-      next_visited = MapSet.put(visited, path)
+  def traverse(map, path, out, visited, cache) do
+    {count, new_cache} =
+      cond do
+        Map.has_key?(cache, path) ->
+          {Map.get(cache, path), cache}
 
-      next_paths
-      |> Enum.reduce(0, fn next, acc ->
-        if MapSet.member?(next_visited, next) do
-          acc
-        else
-          acc + traverse_part1(map, next, next_visited)
-        end
-      end)
-    end
-  end
+        path == out ->
+          {1, cache}
 
-  def traverse_part2(map, path, visited) do
-    saw_dac_and_fft = MapSet.member?(visited, "dac") && MapSet.member?(visited, "fft")
+        path != out && path == "out" ->
+          {0, cache}
 
-    cond do
-      path == "out" && saw_dac_and_fft ->
-        1
+        true ->
+          next_paths = Map.get(map, path)
+          next_visited = MapSet.put(visited, path)
 
-      path == "out" && !saw_dac_and_fft ->
-        0
+          next_paths
+          |> Enum.reduce({0, cache}, fn next, {acc, r_cache} ->
+            if MapSet.member?(next_visited, next) do
+              {acc, cache}
+            else
+              {result, new_cache} = traverse(map, next, out, next_visited, r_cache)
+              {result + acc, new_cache}
+            end
+          end)
+      end
 
-      true ->
-        # Placeholder for traversal logic
-        next_paths = Map.get(map, path)
-        next_visited = MapSet.put(visited, path)
-
-        next_paths
-        |> Enum.reduce(0, fn next, acc ->
-          if MapSet.member?(next_visited, next) do
-            acc
-          else
-            acc + traverse_part2(map, next, next_visited)
-          end
-        end)
-    end
+    {count, Map.put(new_cache, path, count)}
   end
 end
 
 data = AOC.read_input(file)
 
-# part1 = data |> AOC.traverse_part1("you", MapSet.new())
-part2 = data |> AOC.traverse_part2("svr", MapSet.new())
+# part1 = data |> AOC.traverse("you", "out", MapSet.new(),Map.new()) |> elem(0)
 
-# 375
+{first_a_leg, _} = data |> AOC.traverse("svr", "dac", MapSet.new(), Map.new())
+{first_b_leg, _} = data |> AOC.traverse("svr", "fft", MapSet.new(), Map.new())
+{second_a_leg, _} = data |> AOC.traverse("dac", "fft", MapSet.new(), Map.new())
+{second_b_leg, _} = data |> AOC.traverse("fft", "dac", MapSet.new(), Map.new())
+{third_a_leg, _} = data |> AOC.traverse("fft", "out", MapSet.new(), Map.new())
+{third_b_leg, _} = data |> AOC.traverse("dac", "out", MapSet.new(), Map.new())
+
+part2 =
+  first_a_leg * second_a_leg * third_a_leg +
+    first_b_leg * second_b_leg * third_b_leg
+
+# 749
 # IO.puts("Part 1: #{part1}")
 
-# 7893123992
+# 420257875695750
 IO.puts("Part 2: #{part2}")
